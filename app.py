@@ -1,71 +1,34 @@
-from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy
-
-
+from flask import Flask, session, request
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.sqlite3'
-app.config['SECRET_KEY'] = "xnbdjhx hsnmhbhsd"
+app.secret_key = 'any random string'
 
 
-db = SQLAlchemy(app)
-
-
-# Table 
-class students(db.Model):
-    id = db.Column('student_id', db.Integer, primary_key = True)
-    name = db.Column(db.String(100))
-    city = db.Column(db.String(50))
-    addr = db.Column(db.String(200)) 
-    pin = db.Column(db.String(10))
-
-    def __init__(self, name, city, addr, pin):
-        self.name = name
-        self.city = city
-        self.addr = addr
-        self.pin = pin
-
-
-with app.app_context():
-    db.create_all()
-
-@app.route('/', methods= ['GET'])
-def first():
-    ola = students.query.all()
-    return {
-        "name": ola[0].name,
-        "city": ola[0].city,
-        "addr": ola[0].addr,
-        "pin": ola[0].pin
-    }
-    
-
-@app.route('/new', methods = ['GET', 'POST'])
-def new_student():
-    if request.method == 'POST':
-
-        try:
-            if not request.json['name'] or not request.json['city'] or not request.json['addr'] or not request.json['pin'] :
-                return {
-                    "message": "kindly supply all the user input"
-                }
-            student = students(request.json['name'], request.json['city'], request.json['addr'], request.json['pin'])
-            db.session.add(student)
-            db.session.commit()
-            return {
-                "message": "user stored successfully"
-            }
-        except:
-        
-            return {
-                    "message": "kindly supply all the user input"
-                }
-
-    else:
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'GET':
         return {
-            "message": "send in a post request"
+            "message": "Go back to a Post requst"
         }
+    username = request.json['username']
+    password = request.json['password']
+
+    session['username'] = username
+
+    return {
+        "message": "you are already registered"
+    }
 
 
-if __name__ == '__main__':
-    
-    app.run(debug = True)
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return {
+            "message": "Go back to a post requst"
+        }
+    # username = request.json['username']
+    # password = request.json['password']
+
+    return {
+        "message": session['username']
+    }
+
